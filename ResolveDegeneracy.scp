@@ -1,0 +1,50 @@
+#!/usr/local/bin/MathematicaScript -script
+
+
+R[x_, y_, z_, t_] := F[y, z, t]*(F[x, y, z] - 1) - F[x, y, t] + 1
+F[x_,y_,z_] := B[x,y,z]*(1 + u[x,z] - u[x,y])
+
+solveDegeneracyB := {B[x_, y_, z_] ->   If[z - y > 1, B[x, y, z - 1]*B[x, z - 1, z], B[x, y, z]]}
+
+solveDegeneracyF := {F[x_, y_, z_] -> If[z - y > 1, F[x, y, z - 1]*F[x, z - 1, z]
+				*(1 + u[x,z-1] - u[x,y])*(1 + u[x,z] - u[x,z-1]), F[x, y, z]]}
+
+ignoreHO := {u[x_,y_]*u[z_,t_]*u[a_,b_] -> 0, u[x_,y_]^2 * u[a_,b_] -> 0, 
+		u[x_,y_]*u[a_,b_] -> 0, u[x_,y_]^2 -> 0}
+
+Bins = 10
+firstRule = 0
+secondRule = 0
+myList = {}
+counter = 1
+
+For[i = 1, i<Bins-2, i++,
+ For[j = 2, j<Bins-1, j++,
+  For[k = 3, k<Bins, k++,
+   For[l = 4, l<Bins+1, l++,
+    For[m = 5, m<Bins+2, m++,
+     If[i<j && j<k && k<l && l<m,
+      firstRule = R[i,j,k,m] - R[i,j,l,m] - F[j,l,m]*R[i,j,k,l];
+      firstRule = ExpandAll[firstRule] //. solveDegeneracyF //. ignoreHO;
+
+	For[w = 1, w < Bins-1, w++,
+ 	 For[v = 2, v < Bins, v++,
+  	  If[w < v,
+  	   coeff = Coefficient[firstRule, u[w,v]] //. solveDegeneracyB;
+  	   Print[coeff]]]];
+
+      secondRule = F[k,l,m]*R[i,j,k,l] - R[i,j,k,m] + F[i,j,k]*R[i,k,l,m] + (1 - F[i,j,k])*R[j,k,l,m]; 
+      secondRule = ExpandAll[secondRule] //. solveDegeneracyF //. ignoreHO;
+      AppendTo[myList,firstRule];
+      AppendTo[myList,secondRule];
+      counter = counter + 1]]]]]]
+
+Print[" "]
+Print[counter]
+
+
+
+
+
+
+
