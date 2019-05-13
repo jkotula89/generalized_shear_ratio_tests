@@ -1,0 +1,65 @@
+#!/usr/local/bin/MathematicaScript -script
+
+(*1. Get directly rid of irrelevant higher order terms*)
+rulethree := {u[x_, y_]*u[z_, t_]*u[a_, b_] -> 0, u[x_, y_]*u[z_, t_]*u[a_, b_]*u[c_, d_] -> 0, 
+		u[x_, y_]*u[z_, t_]^2 -> 0,(u[x_, y_]^2)*u[z_, t_]^2 -> 0}
+
+(*2. Afterwards, consider only squared-noise terms *)
+ruletwo := {u[x_, y_]*u[a_, b_] -> KroneckerDelta[x == a && y == b, 1, 0], u[x_, y_]^2 -> n[x, y]^2}
+
+(*3. Terms proportional to u[a,b] are zero by definition. *)
+ruleone := {u[x_, y_] -> 0, n[x_, y_]^2 * n[a_, b_]^2 -> 0}
+
+(*4. Renaming the remaining terms *)
+rule := {n -> u}
+
+(*Define the Generalized shear-ratio test, the mean, variance and covariance*)
+Func[x_, y_, z_, t_] := (R[x, y, z]*R[y, z, t] - R[y, z, t] - R[x, y, t] + 1)
+mean[x_, y_, z_, t_] := (F[x, y, z]*F[y, z, t] - F[y, z, t] - F[x, y, t] + 1)
+R[x_, y_, z_] := F[x, y, z]*(1 + u[x, z] - u[x, y])
+Var[x_, y_, z_, t_, a_, b_, c_, d_] := ExpandAll[Func[x, y, z, t]*Func[a, b, c, d] - mean[x, y, z, t]*mean[a, b, c, d]] /. rulethree
+Cov[x_,y_,z_,t_,a_,b_,c_,d_] := Var[x,y,z,t,a,b,c,d]
+
+
+(*Define size of the covariance matrix according to
+ MatrixDimension = (dimension-3)*(dimension-2)/2
+ Else, define number of extra dimensions and include Observables manually!*)
+dimension = 10
+
+(*HEREAFTER: Matrix computation*)
+dimCalc = (dimension - 5)*(dimension - 4)/2
+vector = ConstantArray[0, dimCalc]
+counter = 1
+check = 0
+abstand = 1
+
+For[aa = 1, aa < dimension - 2, aa++, 
+ For[bb = 2, bb < dimension - 1, bb++, 
+  For[cc = 3, cc < dimension, cc++, 
+   For[dd = 4, dd < dimension + 1, dd++, 
+    If[aa < bb && bb < cc && cc < dd && (dd - cc) == 1 && aa == 1 && bb - aa > abstand  && cc - bb > abstand, 
+     vector[[counter]] =  comp[aa,bb,cc,dd];
+     Print[aa, bb, cc, dd];
+     counter = counter + 1;
+     check = check + 1]]]]]
+
+Print[counter-1]
+Print[dimCalc]
+
+
+ruleCov := {comp[xx_,yy_,zz_,tt_]*comp[qq_,ww_,ee_,rr_] -> Cov[xx,yy,zz,tt,qq,ww,ee,rr], 
+				comp[xx_,yy_,zz_,tt_]^2 -> Cov[xx,yy,zz,tt,xx,yy,zz,tt]}
+
+matrix = Table[Part[vector, iii]*Part[vector,jjj] /. ruleCov /. ruletwo /. ruleone /. rule, {iii, 1, dimCalc}, {jjj, 1, dimCalc}]
+
+
+matrix4 = FullSimplify[matrix3]
+
+
+Print[" WRITING OUTPUT FILE"]
+Print[Dimensions[matrix]]
+
+(*Matrix output*)
+
+Export["/home/user/covariance.txt", matrix]
+
