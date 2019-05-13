@@ -1,0 +1,148 @@
+#!/usr/local/bin/MathematicaScript -script
+
+
+(************************************* DIMENSION BESTIMMEN *************************************)
+(************************************* RR_ijkl geht von i = 1 bis l = DIMENSION ****************)
+dimension = 7
+(***********************************************************************************************)
+Print[" "]
+Print["   Please, type in a number larger than 7 and hit the Enter key"]
+dimension = Input[]
+
+If[Mod[dimension, 2] == 0,
+
+index = dimension/2 - 1;
+dimCalc = (dimension-2)*(dimension-1)/2 - (dimension-2);
+vector = ConstantArray[0, dimCalc];
+firstIndex = dimension - 3;
+mitte = Ceiling[firstIndex/2.0] + 1;
+
+counter = 1;
+check = 0;
+For[a = 1, a < dimension - 2, a++, 
+ For[b = 2, b < dimension - 1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension + 1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && (b - a) == 1, 
+     For[i = 1, i < b, i++, vector[[counter]] = vector[[counter]] + R[i,b,c,d]];
+     counter = counter + 1;
+     check = check + 1]]]]];
+
+(*
+
+&& check < (dimCalc - dimension+2)
+
+For[a = 1, a < dimension-2, a++, 
+ For[b = 2, b < dimension-1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension+1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && b == mitte, 
+     If[(b - a) > 1 && a < 2, 
+      For[i = 2, i < 3, i++,
+       vector[[counter]] = 
+        vector[[counter]] + ((-1)^(i-1))*R[i, b, c, d] ];
+	 If[(b - (i - 1)) > 2, For[k = 1, (b - k) > (i - 1 + k), k++, 
+   	  vector[[counter]] = 
+          vector[[counter]]  + ((-1)^(k-1))*R[i - 1 + k, b - k, c - k, d - k]]];
+      	 counter=  counter + 1
+      	 ]]]]]];
+
+
+For[a = 1, a < dimension - 2, a++, 
+ For[b = 2, b < dimension - 1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension + 1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && b == mitte + 1, 
+     If[(b - a) > 1 && a < 2, 
+      For[i = 2, i < 3, i++, 
+       vector[[counter]] = 
+        vector[[counter]] + ((-1)^(i-1))*R[i, b, c, d] ];
+	If[(b - (i - 1)) > 2, For[k = 1, (b - k) > (i - 1 + k), k++, 
+   	 vector[[counter]] = 
+    	 vector[[counter]] + ((-1)^(k-1))*R[i - 1 + k, b - k, c - k, d - k]]];
+      counter = counter + 1]]]]]];
+
+For[i = 2,i < 3,i++,
+ vector[[counter]] = vector[[counter]] + ((-1)^(i-1))*R[i, dimension-2, dimension-1, dimension] ];
+	If[((dimension-3) - (i - 1)) > 2, For[k = 1, ((dimension-3) - k) > (i - 1 + k), k++, 
+   	 vector[[counter]] = 
+    	 vector[[counter]] + ((-1)^(k-1))*R[i - 1 + k, (dimension-2) - k, (dimension-1) - k, (dimension) - k]]];
+*)
+,
+
+(**************** ELSE BEGINS ****************)
+
+indexH = Ceiling[dimension/2];
+indexL = Floor[dimension/2 ] ;
+dimCalc = (dimension - 2)*(dimension - 1)/2 - (dimension-2);
+vector = ConstantArray[0, dimCalc];
+firstIndex = dimension - 3;
+mitte = Ceiling[firstIndex/2.0] + 1;
+
+counter = 1;
+check = 0;
+For[a = 1, a < dimension - 2, a++, 
+ For[b = 2, b < dimension - 1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension + 1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && (b - a) == 1 && check < (dimCalc - dimension+2), 
+     For[i = 1, i < b, i++, vector[[counter]] = vector[[counter]] + R[i,b,c,d]];
+     counter = counter + 1;
+     check = check + 1]]]]];
+
+For[a = 1, a < dimension - 2, a++, 
+ For[b = 2, b < dimension - 1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension + 1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && b == mitte, 
+     If[(b - a) > 1 && a < 2, 
+      For[i = 1, i < 3, i++, 
+       vector[[counter]] = 
+        vector[[counter]] + ((-1)^(i -1))*R[i, b, c, d]];
+	If[(b - (i - 1)) > 2, For[k = 1, (b - k) > (i - 1 + k), k++, 
+   	 vector[[counter]] = 
+    	 vector[[counter]] + ((-1)^(k))*R[i - 1 + k, b - k, c - k, d - k]]];	
+      counter = counter + 1]]]]]];
+
+
+For[a = 1, a < dimension - 2, a++, 
+ For[b = 2, b < dimension - 1, b++, 
+  For[c = 3, c < dimension, c++, 
+   For[d = 4, d < dimension + 1, d++, 
+    If[a < b && b < c && c < d && (d - c) == 1 && b == mitte + 1, 
+     If[(b - a) > 1 && a < 2, 
+      For[i = 1, i < 3, i++, 
+       vector[[counter]] = 
+        vector[[counter]] + ((-1)^(i -1))*R[i, b, c, d]];
+	If[(b - (i - 1)) > 2, For[k = 1, (b - k) > (i - 1 + k), k++, 
+   	 vector[[counter]] = 
+    	 vector[[counter]] + ((-1)^(k))*R[i - 1 + k, b - k, c - k, d - k]]];
+      counter = counter + 1]]]]]];
+
+vector[[counter-2]] = 0;
+
+For[i = 1,i < 3,i++,
+ vector[[counter-2]] = vector[[counter-2]] + ((-1)^(i-1))*R[i, dimension-3, dimension-2, dimension-1] ];
+If[(dimension-2 - (i - 1)) > 3, For[k = 1, (dimension-2 - k) > (i - 1 + k + 1), k++, 
+   	 vector[[counter-2]] = 
+    	 vector[[counter-2]] + ((-1)^(k))*R[i - 1 + k, dimension-3 - k, dimension-2 - k, dimension -1 - k]]];
+
+
+
+vector[[counter-1]] = 0;
+
+For[i = 1,i < 3,i++,
+ vector[[counter-1]] = vector[[counter-1]] + ((-1)^(i-1))*R[i, dimension-2, dimension-1, dimension] ];
+If[(dimension-2 - (i - 1)) > 2, For[k = 1, (dimension-2 - k) > (i - 1 + k), k++, 
+   	 vector[[counter-1]] = 
+    	 vector[[counter-1]] + ((-1)^(k))*R[i - 1 + k, dimension-2 - k, dimension-1 - k, dimension - k]]];
+
+]
+(************* IF ends *************)
+Print[" "]
+vectorDim = Dimensions[vector]
+For[i=1, i < vectorDim[[1]] + 1, i++, Print["  ", i, "  ", vector[[i]]]]
+Print[" "]
+(******************************** Code Ende ****************************)
+
+Print[rank]
